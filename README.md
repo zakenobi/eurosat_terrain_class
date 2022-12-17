@@ -34,6 +34,18 @@ for image, label in train_ds.take(5):
 (64, 64, 3)
 ```
 
-This is very good, as we can use the images as they are without any heavy preprocessing.
+This is very good, as we can use the images as they are without any heavy preprocessing. Having the same size and resolution is necessary for the convolutional neural networks we will use later because they expect a fixed size input.
 
 ## Preprocessing
+The first thing we do is make sur the size of the images is the same. Then at the same time generate batches of images and labels. We also shuffle the data and normalize the images.
+
+```Python
+train_ds = train_ds.map(resize_image).batch(BATCH_SIZE)\
+    .prefetch(buffer_size=tf.data.AUTOTUNE)
+
+val_ds = val_ds.map(resize_image).batch(BATCH_SIZE)\
+    .prefetch(buffer_size=tf.data.AUTOTUNE)
+
+test_ds = test_ds.map(resize_image).batch(BATCH_SIZE)\
+    .prefetch(buffer_size=tf.data.AUTOTUNE)
+```
