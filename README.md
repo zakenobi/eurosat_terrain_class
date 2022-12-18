@@ -49,3 +49,45 @@ val_ds = val_ds.map(resize_image).batch(BATCH_SIZE)\
 test_ds = test_ds.map(resize_image).batch(BATCH_SIZE)\
     .prefetch(buffer_size=tf.data.AUTOTUNE)
 ```
+
+Additionally, in each model we have a rescaling layer that normalizes the images. This is done because we want the RGB values between 0 and 255.
+
+```Python
+layers.Rescaling(1./255, input_shape=(img_height, img_width, 3))
+```
+
+## Models
+
+We have tried 3 different models. The first one is a simple convolutional neural network. The second one is a more complex and optimized convolutional neural network. The last one is a transfer learning model using the resnet50 model.
+
+### Simple CNN
+
+The first model is a simple convolutional neural network. It has 3 convolutional layers with 32, 64 and 128 filters respectively. Each convolutional layer is followed by a max pooling layer. The last convolutional layer is followed by a flatten layer and a relu layer with 128 neurons. The output layer is a dense layer with 10 neurons.
+
+```Python
+model = models.Sequential([
+    layers.Rescaling(1./255, input_shape=(img_height, img_width, 3)),
+    layers.Conv2D(32, 3, activation='relu'),
+    layers.MaxPooling2D(),
+    layers.Conv2D(64, 3, activation='relu'),
+    layers.MaxPooling2D(),
+    layers.Conv2D(128, 3, activation='relu'),
+    layers.MaxPooling2D(),
+    layers.Flatten(),
+    layers.Dense(128, activation='relu'),
+    layers.Dense(10)
+])
+```
+
+This model gives a test accuracy of 0.83 with 10 epochs. The training and validation accuracy and loss are shown below:
+
+![Simple CNN](./images/basic_accuracy.png)
+
+We can see that the model is close to overfitting. This is something we will try to avoid in the next model. The confusion matrix is shown below:
+
+![Simple CNN confusion matrix](./images/basic_confusion_matrix.png)
+
+Over all the model does a good job at classifying the images. The most difficult classes to classify are the PermanentCrop, River and Highway classes. This is probably because these classes are very similar to each other. Maybe a better preprocessing could help with this by using data augmentation.
+
+### Optimized CNN
+
