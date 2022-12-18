@@ -60,6 +60,8 @@ layers.Rescaling(1./255, input_shape=(img_height, img_width, 3))
 
 We have tried 3 different models. The first one is a simple convolutional neural network. The second one is a more complex and optimized convolutional neural network. The last one is a transfer learning model using the resnet50 model.
 
+For all the models we are using the Adam optimizer and the categorical crossentropy loss function. We are also using the accuracy metric to evaluate the models.
+
 ### Simple CNN
 
 The first model is a simple convolutional neural network. It has 3 convolutional layers with 32, 64 and 128 filters respectively. Each convolutional layer is followed by a max pooling layer. The last convolutional layer is followed by a flatten layer and a relu layer with 128 neurons. The output layer is a dense layer with 10 neurons.
@@ -79,7 +81,7 @@ model = models.Sequential([
 ])
 ```
 
-This model gives a test accuracy of 0.83 with 10 epochs. The training and validation accuracy and loss are shown below:
+This model gives a test accuracy of `0.83` with 10 epochs. The training and validation accuracy and loss are shown below:
 
 ![Simple CNN](./images/basic_accuracy.png)
 
@@ -90,4 +92,81 @@ We can see that the model is close to overfitting. This is something we will try
 Over all the model does a good job at classifying the images. The most difficult classes to classify are the PermanentCrop, River and Highway classes. This is probably because these classes are very similar to each other. Maybe a better preprocessing could help with this by using data augmentation.
 
 ### Optimized CNN
+
+In this model we try to improve the previous one by using several techniques:
+
+* __Data augmentation__: This consists of generating new images from the existing ones. This is done by applying random transformations to the images. This helps the model generalize better.
+* __Dropout__: This is a regularization technique that consists of randomly dropping neurons during training. This prevents the model from converging too quickly to a local minimum.
+* __Softmax__: This is a normalization technique that makes the output of the model sum to 1. This is useful because it makes the output of the model more interpretable.
+* __Early stopping__: This is a technique that stops the training when the validation loss stops improving. This prevents the model from overfitting.
+
+#### Data augmentation
+
+Here we are using the layers provided by `tensorflow.keras` in order to apply random transformations to the images. We are using the following transformations:
+
+```Python
+data_augmentation = models.Sequential([
+    layers.experimental.preprocessing.RandomFlip("horizontal", input_shape=(img_height, img_width, 3)),
+    layers.experimental.preprocessing.RandomRotation(0.1),
+    layers.experimental.preprocessing.RandomZoom(0.1),
+])
+```
+
+#### Dropout
+
+We are using dropout after the last convolutional layer and before the flatten layer. This is done by adding a dropout layer with a dropout rate of 0.2.
+
+```Python
+layers.Dropout(0.2)
+```
+
+#### Softmax
+
+We are using the softmax activation function in the output layer simply specifying it in the dense layer.
+
+```Python
+layers.Dense(10, activation='softmax')
+```
+
+#### Early stopping
+
+Early stopping is implemented by using the `EarlyStopping` callback provided by `tensorflow.keras`. This callback stops the training when the validation loss stops improving and can return the version of the model with the best weights. We are using the following parameters:
+
+```Python
+early_stopping = tf.keras.callbacks.EarlyStopping(
+    monitor='val_loss', min_delta=0, patience=3, verbose=0,
+    mode='auto', baseline=None, restore_best_weights=True
+)
+```
+
+#### Model
+
+Once we have all the techniques implemented, we can build the model:
+
+```Python
+model_aug = models.Sequential([
+    data_augmentation,
+    layers.Rescaling(1./255),
+    layers.Conv2D(32, 3, activation='relu'),
+    layers.MaxPooling2D(),
+    layers.Conv2D(64, 3, activation='relu'),
+    layers.MaxPooling2D(),
+    layers.Conv2D(128, 3, activation='relu'),
+    layers.MaxPooling2D(),
+    layers.Dropout(0.2),
+    layers.Flatten(),
+    layers.Dense(128, activation='relu'),
+    layers.Dense(10, activation='softmax')
+])
+```
+
+This model gives a test accuracy of `0.85` after stopping the training at epoch 16. Here we can see the training and validation accuracy and loss:
+
+![Optimized CNN](./images/optimized_accuracy.png)
+
+The improvement in the accuracy is not very big, but we can see that the model is not overfitting as much as the previous one. Now let's see the confusion matrix:
+
+![Optimized CNN confusion matrix](./images/optimized_confusion_matrix.png)
+
+We can see that the model is doing a better job at classifying the PermanentCrop, River and Highway classes. This is probably because the data augmentation is helping the model generalize better. The only class that is still difficult to classify is the Highway class that is being confused with the River. This is not very surprising as these can aslo been mistaken by a human with this low resolution images and very similar colors.
 
