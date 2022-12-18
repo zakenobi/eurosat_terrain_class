@@ -202,3 +202,6 @@ Already at the first epoch the validation was the best of all the models. The sa
 
 The model is doing a great job at classifying the images! Nerly all the classes are being predicted correctly over 80% of the time.
 
+## Conclusion
+
+In this project we have seen how to use a convolutional neural network to classify images. We have seen how to preprocess the data and how to build a simple CNN. We have also seen how to improve the model by using data augmentation, dropout, softmax and early stopping. Finally we have seen how to use transfer learning to improve the model even more. The model with the best accuracy was the one using transfer learning. This model gave a test accuracy of `0.91` and a test loss of `0.25`. This is a very good result for a model that was trained with only 5 epochs. This model is also very fast to train. This is because we are not training the whole model, but only the last layer. This is a very good result for a model that was trained with only 5 epochs. This model is also very fast to train. This is because we are not training the whole model, but only the last layer. This is a very good result for a model that was trained with only 5 epochs. This model is also very fast to train. This is because we are not training the whole model, but only the last layer.
