@@ -81,7 +81,7 @@ model = models.Sequential([
 ])
 ```
 
-This model gives a test accuracy of `0.83` with 10 epochs. The training and validation accuracy and loss are shown below:
+This model gives a test accuracy of `0.83` with 15 epochs. The training and validation accuracy and loss are shown below:
 
 ![Simple CNN](./images/basic_accuracy.png)
 
@@ -89,7 +89,29 @@ We can see that the model is close to overfitting. This is something we will try
 
 ![Simple CNN confusion matrix](./images/basic_confusion_matrix.png)
 
-Over all the model does a good job at classifying the images. The most difficult classes to classify are the PermanentCrop, River and Highway classes. This is probably because these classes are very similar to each other. Maybe a better preprocessing could help with this by using data augmentation.
+Overall, the model does a good job of classifying the images. The most difficult classes to classify are the PermanentCrop, River and Highway classes. This is probably because these classes are very similar to each other. Maybe a better preprocessing could help with this by using data augmentation. We can verify the global classification with a classification report:
+
+```
+                precision    recall  f1-score   support
+
+           0       0.82      0.89      0.85       598
+           1       0.92      0.97      0.94       593
+           2       0.70      0.81      0.75       611
+           3       0.61      0.69      0.65       461
+           4       0.94      0.86      0.89       504
+           5       0.90      0.78      0.84       446
+           6       0.72      0.67      0.69       524
+           7       0.94      0.94      0.94       599
+           8       0.83      0.68      0.75       493
+           9       0.98      0.95      0.96       571
+
+    accuracy                           0.83      5400
+   macro avg       0.84      0.82      0.83      5400
+weighted avg       0.84      0.83      0.83      5400
+```
+
+We can see that every class is pretty well represented.
+
 
 ### Optimized CNN
 
@@ -164,15 +186,14 @@ This model gives a test accuracy of `0.85` after stopping the training at epoch 
 
 ![Optimized CNN](./images/optimized_accuracy.png)
 
-The improvement in the accuracy is not very big, but we can see that the model is not overfitting as much as the previous one. Now let's see the confusion matrix:
+The improvement in accuracy is not very big, but we can see that the model is not overfitting as much as the previous one. Now let's see the confusion matrix:
 
 ![Optimized CNN confusion matrix](./images/optimized_confusion_matrix.png)
 
-We can see that the model is doing a better job at classifying the PermanentCrop, River and Highway classes. This is probably because the data augmentation is helping the model generalize better. The only class that is still difficult to classify is the Highway class that is being confused with the River. This is not very surprising as these can aslo been mistaken by a human with this low resolution images and very similar colors.
+We can see that the model is doing a better job at classifying the PermanentCrop, River and Highway classes. This is probably because the data augmentation is helping the model generalize better. The only class that is still difficult to classify is the Highway class which is being confused with the River. This is not very surprising as these can also be mistaken by a human with these low-resolution images and very similar colors.
 
 ### Transfer learning
-
-In this model we are using a pre-trained model. We are using the resnet50 model that has been trained on the ImageNet dataset. The benefit of using a pre-trained model is that it has already learned a lot of features from the ImageNet dataset. This means that we can use this model as a starting point and fine tune it to our dataset. This is much faster than training a model from scratch and it also gives better results. In our case we are using the resnet50 model as a feature extractor. This means that we are not going to train the model, but we are going to use the features extracted by the model. We are going to add a new output layer with 10 neurons and train it with our dataset.
+In this model, we are using a pre-trained model. We are using the resnet50 model that has been trained on the ImageNet dataset. The benefit of using a pre-trained model is that it has already learned a lot of features from the ImageNet dataset. This means that we can use this model as a starting point and fine-tune it to our dataset. This is much faster than training a model from scratch and it also gives better results. In our case, we are using the resnet50 model as a feature extractor. This means that we are not going to train the model, but we are going to use the features extracted by the model. We are going to add a new output layer with 10 neurons and train it with our dataset.
 
 ```Python
 from tensorflow.keras.applications import ResNet50
@@ -192,16 +213,35 @@ model_resnet = models.Sequential([
 ])
 ```
 
-Now we have a test accuracy niceley improved to `0.91`! The training was only 5 epochs long here is the accuracy and loss:
+Now we have a test accuracy nicely improved to `0.91`! The training was only 5 epochs long here is the accuracy and loss:
 
 ![Transfer learning](./images/resnet_accuracy.png)
 
-Already at the first epoch the validation was the best of all the models. The same improvement can be seen in the confusion matrix:
+Already at the first epoch, the validation was the best of all the models. The same improvement can be seen in the confusion matrix:
 
 ![Transfer learning confusion matrix](./images/resnet_confusion_matrix.png)
 
-The model is doing a great job at classifying the images! Nerly all the classes are being predicted correctly over 80% of the time.
+The model is doing a great job at classifying the images! Nearly all the classes are being predicted correctly over 80% of the time. We can double-check the improvements with the classification report:
+
+```
+                precision    recall  f1-score   support
+
+           0       0.85      0.95      0.90       598
+           1       0.96      0.97      0.96       593
+           2       0.89      0.91      0.90       611
+           3       0.83      0.79      0.81       461
+           4       0.96      0.96      0.96       504
+           5       0.89      0.91      0.90       446
+           6       0.90      0.78      0.84       524
+           7       0.96      0.97      0.97       599
+           8       0.88      0.87      0.88       493
+           9       0.98      0.98      0.98       571
+
+    accuracy                           0.91      5400
+   macro avg       0.91      0.91      0.91      5400
+weighted avg       0.91      0.91      0.91      5400
+```
+
 
 ## Conclusion
-
-In this project we have seen how to use a convolutional neural network to classify images. We have seen how to preprocess the data and how to build a simple CNN. We have also seen how to improve the model by using data augmentation, dropout, softmax and early stopping. Finally we have seen how to use transfer learning to improve the model even more. The model with the best accuracy was the one using transfer learning. This model gave a test accuracy of `0.91` and a test loss of `0.25`. This is a very good result for a model that was trained with only 5 epochs. This model is also very fast to train. This is because we are not training the whole model, but only the last layer. This is a very good result for a model that was trained with only 5 epochs. This model is also very fast to train. This is because we are not training the whole model, but only the last layer. This is a very good result for a model that was trained with only 5 epochs. This model is also very fast to train. This is because we are not training the whole model, but only the last layer.
+In this project, we have seen how to use a convolutional neural network to classify images. We have seen how to preprocess the data and how to build a simple CNN. We have also seen how to improve the model by using data augmentation, dropout, softmax and early stopping. Finally, we have seen how to use transfer learning to improve the model even more. The model with the best accuracy was the one using transfer learning. This model gave a test accuracy of `0.91` and a test loss of `0.25`. This is a very good result for a model that was trained with only 5 epochs.
