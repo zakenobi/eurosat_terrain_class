@@ -170,3 +170,35 @@ The improvement in the accuracy is not very big, but we can see that the model i
 
 We can see that the model is doing a better job at classifying the PermanentCrop, River and Highway classes. This is probably because the data augmentation is helping the model generalize better. The only class that is still difficult to classify is the Highway class that is being confused with the River. This is not very surprising as these can aslo been mistaken by a human with this low resolution images and very similar colors.
 
+### Transfer learning
+
+In this model we are using a pre-trained model. We are using the resnet50 model that has been trained on the ImageNet dataset. The benefit of using a pre-trained model is that it has already learned a lot of features from the ImageNet dataset. This means that we can use this model as a starting point and fine tune it to our dataset. This is much faster than training a model from scratch and it also gives better results. In our case we are using the resnet50 model as a feature extractor. This means that we are not going to train the model, but we are going to use the features extracted by the model. We are going to add a new output layer with 10 neurons and train it with our dataset.
+
+```Python
+from tensorflow.keras.applications import ResNet50
+
+base_model = ResNet50(input_shape=(img_height, img_width, 3),
+                        include_top=False,
+                        weights='imagenet')
+
+base_model.trainable = False
+```
+
+```Python
+model_resnet = models.Sequential([
+    base_model,
+    layers.GlobalAveragePooling2D(),
+    layers.Dense(10)
+])
+```
+
+Now we have a test accuracy niceley improved to `0.91`! The training was only 5 epochs long here is the accuracy and loss:
+
+![Transfer learning](./images/resnet_accuracy.png)
+
+Already at the first epoch the validation was the best of all the models. The same improvement can be seen in the confusion matrix:
+
+![Transfer learning confusion matrix](./images/resnet_confusion_matrix.png)
+
+The model is doing a great job at classifying the images! Nerly all the classes are being predicted correctly over 80% of the time.
+
